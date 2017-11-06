@@ -1,37 +1,34 @@
 var express = require("express");
-var database = require("./database")
+var addUrl = require("./addUrl");
+var getUrl = require("./getUrl");
+
 
 var app = express();
 
-
-app.get("/new/:url", function(req, res){
-  res.send(req.params.url);
-});
-
 app.get("/:shortenedUrl", function(req, res){
 
-});
 
-app.get("/get", function(req, res){
+  getUrl(req.params.shortenedUrl, function(result){
 
-  urlModel.find(function(err, doc){
-    if(err){
-      console.error(err);
+    var pattern = new RegExp(/http[s]?:\/\/www\.\w*.*/g);
+    if(pattern.test(result)){
+      res.statusCode = 302;
+      res.setHeader("Location", result);
+      res.end();
     }
-    res.send(doc)
+    else{
+      res.send(result);
+    }
   });
 
 });
 
-app.get("/post", function(req, res){
-  // var saveData = new urlModel({index: 123, url: "www.google.com"});
-  urlModel.create({index: "123", url: "www.google.com"},function(err, result){
-    res.send("saved" + result);
+app.get("/new/:url(*)", function(req, res){
+
+  addUrl(req.params.url, function(result){
+    res.send(result);
   });
-
 });
-
-
 
 // listen for requests :)
 var listener = app.listen(3000, function () {
